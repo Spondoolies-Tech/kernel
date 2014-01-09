@@ -198,7 +198,8 @@ static int omap_hsmmc_card_detect(struct device *dev, int slot)
 	struct omap_mmc_platform_data *mmc = host->pdata;
 
 	/* NOTE: assumes card detect signal is active-low */
-	return !gpio_get_value_cansleep(mmc->slots[0].switch_pin);
+	return !gpio_get_value_cansleep(mmc->slots[0].switch_pin) ^
+		mmc->slots[0].cd_active_low;
 }
 
 static int omap_hsmmc_get_wp(struct device *dev, int slot)
@@ -1748,6 +1749,7 @@ static struct omap_mmc_platform_data *of_get_hsmmc_pdata(struct device *dev)
 	struct device_node *np = dev->of_node;
 	u32 bus_width, max_freq;
 	enum of_gpio_flags reset_flags;
+	enum of_gpio_flags gpio_flags;
 
 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
 	if (!pdata)
@@ -1758,7 +1760,9 @@ static struct omap_mmc_platform_data *of_get_hsmmc_pdata(struct device *dev)
 
 	/* This driver only supports 1 slot */
 	pdata->nr_slots = 1;
-	pdata->slots[0].switch_pin = of_get_named_gpio(np, "cd-gpios", 0);
+	pdata->slots[0].switch_pin = of_get_named_gpio_flags(np, "cd-gpios", 0,
+							&gpio_flags);
+	pdata->slots[0].cd_active_low = (gpio_flags & OF_GPIO_ACTIVE_LOW) != 0;
 	pdata->slots[0].gpio_wp = of_get_named_gpio(np, "wp-gpios", 0);
 	reset_flags = 0;
 	pdata->slots[0].gpio_reset = of_get_named_gpio_flags(np,

@@ -114,6 +114,7 @@ struct omap_mmc_platform_data {
 		unsigned features;
 
 		int switch_pin;			/* gpio (card detect) */
+		int cd_active_low;		/* 1 if CD is active low */
 		int gpio_wp;			/* gpio (write protect) */
 		int gpio_reset;			/* gpio (reset) */
 		int gpio_reset_active_low;	/* 1 if reset is active low */
