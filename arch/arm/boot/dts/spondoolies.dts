@@ -53,6 +53,9 @@
 	reset-names = "eMMC_RSTn-CONSUMER";
 };
 
+&i2c0 {
+	clock-frequency = <100000>;
+};
 
 &cpu {
 	/*
