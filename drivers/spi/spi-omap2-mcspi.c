@@ -225,11 +225,12 @@ static void omap2_mcspi_force_cs(struct spi_device *spi, int cs_active)
 	u32 l;
 
 	l = mcspi_cached_chconf0(spi);
+#ifdef NO_SPONDOOLIES_SPI_WORKAROUND
 	if (cs_active)
 		l |= OMAP2_MCSPI_CHCONF_FORCE;
 	else
 		l &= ~OMAP2_MCSPI_CHCONF_FORCE;
-
+#endif
 	mcspi_write_chconf0(spi, l);
 }
 
@@ -245,7 +246,9 @@ static void omap2_mcspi_set_master_mode(struct spi_master *master)
 	 */
 	l = mcspi_read_reg(master, OMAP2_MCSPI_MODULCTRL);
 	l &= ~(OMAP2_MCSPI_MODULCTRL_STEST | OMAP2_MCSPI_MODULCTRL_MS);
+#ifdef NO_SPONDOOLIES_SPI_WORKAROUND
 	l |= OMAP2_MCSPI_MODULCTRL_SINGLE;
+#endif
 	mcspi_write_reg(master, OMAP2_MCSPI_MODULCTRL, l);
 
 	ctx->modulctrl = l;
