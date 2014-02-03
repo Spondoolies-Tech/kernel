@@ -170,19 +170,25 @@ static irqreturn_t tps65217_irq(int irq, void *irq_data)
                 return IRQ_NONE;
 
         if (int_reg & TPS65217_INT_PBI) {
+#ifdef CONFIG_INPUT
                 /* Handle push button */
                 dev_dbg(tps->dev, "power button status change\n");
                 input_report_key(tps->pwr_but, KEY_POWER,
                                 status_reg & TPS65217_STATUS_PB);
                 input_sync(tps->pwr_but);
+#endif
+		;
         }
         if (int_reg & TPS65217_INT_ACI) {
+#ifdef CONFIG_INPUT
                 /* Handle AC power status change */
                 dev_dbg(tps->dev, "AC power status change\n");
                 /* Press KEY_POWER when AC not present */
                 input_report_key(tps->pwr_but, KEY_POWER,
                                 ~status_reg & TPS65217_STATUS_ACPWR);
                 input_sync(tps->pwr_but);
+#endif
+		;
         }
         if (int_reg & TPS65217_INT_USBI) {
                 /* Handle USB power status change */
@@ -192,6 +198,7 @@ static irqreturn_t tps65217_irq(int irq, void *irq_data)
         return IRQ_HANDLED;
 }
 
+#ifdef CONFIG_INPUT
 static int tps65217_probe_pwr_but(struct tps65217 *tps)
 {
 	int ret;
@@ -231,6 +238,7 @@ static int tps65217_probe_pwr_but(struct tps65217 *tps)
 	tps65217_reg_write(tps, TPS65217_REG_INT, int_reg, TPS65217_PROTECT_NONE);
 	return 0;
 }
+#endif
 
 static int tps65217_probe(struct i2c_client *client,
 				const struct i2c_device_id *ids)
@@ -306,11 +314,14 @@ static int tps65217_probe(struct i2c_client *client,
 
 	/* we got an irq, request it */
 	if (tps->irq >= 0) {
+#ifdef CONFIG_INPUT
 		ret = tps65217_probe_pwr_but(tps);
 		if (ret < 0) {
 			dev_err(tps->dev, "Failed to probe pwr_but\n");
 			return ret;
 		}
+#endif
+		;
 	}
 
 	ret = mfd_add_devices(tps->dev, -1, tps65217s,
